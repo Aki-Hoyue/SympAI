@@ -5,6 +5,11 @@ import json
 from datasets import load_dataset
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
+from ....utils.config import PROJECT_ROOT
+from dotenv import load_dotenv
+import os
+load_dotenv()
+TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
 
 class TextSplitter:
     def __init__(self, 
@@ -234,13 +239,33 @@ class DataPreprocessor:
         
         documents = []
         for source in config:
-            project_path = Path(__file__).resolve().parent.parent.parent.parent
-            path = project_path / "data" / "raw" / source["filename"]
+            data_path = PROJECT_ROOT / "server" / "data" / "raw"
+            path = data_path / source["filename"]
             documents.extend(self.process_single_source(source, path))
-        # TODO: 处理完一个文件后，立刻将其嵌入到向量数据库中。重写项目目录获取方法
         return documents
 
     def process_single_source(self, source: Dict[str, Any], path: Union[str, Path]) -> List[Document]:
-        loader = self.loader.create_loader(source["type"], source["chunk_size"], source["chunk_overlap"], source["separators"])
-        return loader.load(path, source["title"])
+        """
+        Process a single data source
+
+        Args:
+            source: Data source configuration
+            path: Data source path
+
+        Returns:
+            List[Document]: Processed document list
+        """
+        if TEST_MODE:   
+            print(f"\n[DataPreprocessor] Deal the source: {path}")
+            print(f"[DataPreprocessor] Source config: {source}")
+        
+        loader = self.loader.create_loader(
+            source["type"], 
+            source.get("chunk_size", 200), 
+            source.get("chunk_overlap", 50), 
+            source.get("separators", None)
+        )
+        documents = loader.load(path, source.get("title", "unknown"))
+        
+        return documents
     
