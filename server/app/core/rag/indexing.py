@@ -17,8 +17,8 @@ class VectorIndexer:
         Initialize the index manager
         
         Args:
-            embedding_service: Embedding服务实例
-            vector_store: 向量存储实例
+            embedding_service: Embedding service instance
+            vector_store: Vector store instance
         """
         self.embedding_service = embedding_service
         self.vector_store = vector_store
@@ -68,7 +68,7 @@ class VectorIndexer:
             if TEST_MODE:
                 print(f"[VectorIndexer] Index building failed: {e}")
                 import traceback
-                print(traceback.format_exc())  # Print full traceback for debugging
+                print(traceback.format_exc())
             return False
     
     def rebuild_index(self):
