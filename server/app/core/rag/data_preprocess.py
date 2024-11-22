@@ -12,10 +12,21 @@ load_dotenv()
 TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
 
 class TextSplitter:
+    """
+    Text splitter for document chunking
+    """
     def __init__(self, 
                  chunk_size: int = 200, 
                  chunk_overlap: int = 50, 
                  separators: List[str] = None):
+        """
+        Initialize the TextSplitter class.
+
+        Args:
+            chunk_size (int): The size of each chunk.
+            chunk_overlap (int): The overlap between chunks.
+            separators (List[str]): The special separators for splitting text.
+        """
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         self.special_separators = separators if separators else None
@@ -31,6 +42,9 @@ class TextSplitter:
         self.set_chunk(chunk_size, chunk_overlap, default_separators)
     
     def set_chunk(self, chunk_size: int = 200, chunk_overlap: int = 50, separators: List[str] = None):
+        """
+        Set the chunk size, overlap, and separators.
+        """
         self.splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
@@ -40,6 +54,16 @@ class TextSplitter:
         )
         
     def split(self, text: str, metadata: Dict[str, Any] = {}) -> List[Document]:
+        """
+        Split the text into chunks.
+
+        Args:
+            text (str): The text to split.
+            metadata (Dict[str, Any]): The metadata of the text.
+
+        Returns:
+            List[Document]: The list of chunks.
+        """
         chunks = [text]
         if self.special_separators:
             for separator in self.special_separators:
@@ -63,6 +87,9 @@ class TextSplitter:
         return documents
 
     def print_split_result(self, documents: List[Document]):
+        """
+        Print the split result. Using in debug mode.
+        """
         print("Split result:")
         print("-" * 100)
         for i, doc in enumerate(documents, 1):
@@ -83,6 +110,16 @@ class TextSplitter:
             print("-" * 100)
 
     def _find_overlap(self, text1: str, text2: str) -> str:
+        """
+        Find the overlap between two texts.
+
+        Args:
+            text1 (str): The first text.
+            text2 (str): The second text.
+
+        Returns:
+            str: The overlap between the two texts.
+        """
         min_length = min(len(text1), len(text2))
         for i in range(min_length, 0, -1):
             if text1[-i:] == text2[:i]:
@@ -98,10 +135,9 @@ class BaseDocumentLoader(ABC):
         pass
 
 class TextFileLoader(BaseDocumentLoader):
-    '''
+    """
     Handle text file
-    '''
-    
+    """
     def load(self, source: Union[str, Path], title: str = None) -> List[Document]:
         source_path = Path(source)
         if not source_path.exists():
@@ -120,10 +156,9 @@ class TextFileLoader(BaseDocumentLoader):
         return self.splitter.split(text, metadata)
 
 class JsonlLoader(BaseDocumentLoader):
-    '''
+    """
     Handle JSON and JSONL file
-    '''
-    
+    """
     def load(self, source: Union[str, Path], title: str = None) -> List[Document]:
         source_path = Path(source)
         
@@ -150,9 +185,10 @@ class JsonlLoader(BaseDocumentLoader):
     
 
 class HuggingFaceLoader(BaseDocumentLoader):
-    '''
+    """
     Handle Huggingface dataset
-    '''
+    TODO: May be removed in the future since different datasets with different formats, can not be unified.
+    """
     def load(self, source: str, title: str = None) -> List[Document]:
         try:
             dataset = load_dataset(source)
@@ -268,4 +304,3 @@ class DataPreprocessor:
         documents = loader.load(path, source.get("title", "unknown"))
         
         return documents
-    
