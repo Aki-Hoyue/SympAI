@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from dataclasses import dataclass
 
 load_dotenv()
-TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 @dataclass
 class RerankResult:
@@ -101,7 +101,7 @@ class Reranker:
         Returns:
             Tuple[List[RerankResult], float]: Reranking results list and highest relevance score
         """
-        if TEST_MODE:
+        if DEBUG:
             print(f"\n[Reranker] Reranking {len(search_results)} search results")
         
         try:
@@ -130,7 +130,7 @@ class Reranker:
                     metadata=original_result["metadata"]
                 ))
             
-            if TEST_MODE:
+            if DEBUG:
                 print(f"[Reranker] Reranking completed")
                 print(f"[Reranker] Highest relevance score: {max_relevance_score:.3f}")
                 if reranked:
@@ -159,7 +159,7 @@ class Reranker:
             # Sort by relevance score
             reranked.sort(key=lambda x: x.relevance_score, reverse=True)
             
-            if TEST_MODE:
+            if DEBUG:
                 print(f"[Reranker] Using original retrieval scores")
                 print(f"[Reranker] Highest relevance score: {max_relevance_score:.3f}")
             

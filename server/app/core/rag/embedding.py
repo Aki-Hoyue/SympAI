@@ -10,7 +10,7 @@ import os
 from server.utils.config import PROJECT_ROOT
 
 load_dotenv()
-TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 class EmbeddingService:
     def __init__(self, 
@@ -125,7 +125,7 @@ class EmbeddingService:
         np_file = output_dir / npy_filename
         np.save(np_file, np.array(vector_data["vectors"]))  # 直接使用vectors字段
         
-        if TEST_MODE:
+        if DEBUG:
             print(f"[EmbeddingService] Embeddings saved to {json_file} and {np_file}")
         
         return {
@@ -148,7 +148,7 @@ class EmbeddingService:
                 "metadata": List[Dict]
             }
         """
-        if TEST_MODE:
+        if DEBUG:
             print(f"\n[EmbeddingService] Convert {len(embedded_docs)} documents to Chroma format")
         
         chroma_data = {
@@ -164,6 +164,6 @@ class EmbeddingService:
             }
             chroma_data["metadata"].append(metadata)
         
-        if TEST_MODE:
-            print(f"[EmbeddingService] Data conversion completed")
+        if DEBUG:
+            print("[EmbeddingService] Data conversion completed")
         return chroma_data

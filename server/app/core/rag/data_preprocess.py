@@ -9,7 +9,7 @@ from ....utils.config import PROJECT_ROOT
 from dotenv import load_dotenv
 import os
 load_dotenv()
-TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 class TextSplitter:
     """
@@ -291,7 +291,7 @@ class DataPreprocessor:
         Returns:
             List[Document]: Processed document list
         """
-        if TEST_MODE:   
+        if DEBUG:   
             print(f"\n[DataPreprocessor] Deal the source: {path}")
             print(f"[DataPreprocessor] Source config: {source}")
         

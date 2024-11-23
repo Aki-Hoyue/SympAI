@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 @dataclass
 class PromptTemplate:
@@ -81,7 +81,7 @@ class PromptGenerator:
             max_relevance_score: Highest relevance score
         """
         strategy = strategy or self.strategy
-        if TEST_MODE:
+        if DEBUG:
             print(f"\n[PromptGenerator] Using strategy: {strategy.value}")
             print(f"[PromptGenerator] User query: {query}")
             print(f"[PromptGenerator] Using {len(documents)} relevant documents to generate prompt")
@@ -108,7 +108,7 @@ class PromptGenerator:
             relevance_note=relevance_note
         )
         
-        if TEST_MODE:
+        if DEBUG:
             print(f"[PromptGenerator] Prompt generated, length: {len(prompt)} characters")
             print(prompt)
         return prompt 

@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 class VectorStore:
     def __init__(self, 
@@ -48,7 +48,7 @@ class VectorStore:
                 metadata={"description": "Medical knowledge base"}
             )
             
-            if TEST_MODE:   
+            if DEBUG:   
                 print(f"[VectorStore] Successfully initialized vector store: {collection_name}")
             
         except Exception as e:
@@ -71,7 +71,7 @@ class VectorStore:
             batch_size = 32
             total_docs = len(documents)
             
-            if TEST_MODE:
+            if DEBUG:
                 print(f"\n[VectorStore] Starting to insert {total_docs} documents in batches")
             
             for i in range(0, total_docs, batch_size):
@@ -83,7 +83,7 @@ class VectorStore:
                     "metadatas": metadatas[i:end_idx]
                 }
                 
-                if TEST_MODE:
+                if DEBUG:
                     print(f"[VectorStore] Preparing to insert {i+1}-{end_idx} documents")
                 
                 try:
@@ -93,7 +93,7 @@ class VectorStore:
                         documents=batch_data["documents"],
                         metadatas=batch_data["metadatas"]
                     )
-                    if TEST_MODE:
+                    if DEBUG:
                         print(f"[VectorStore] Successfully inserted {i+1}-{end_idx} documents")
                     
                 except Exception as batch_error:
@@ -107,7 +107,7 @@ class VectorStore:
                                 documents=batch_data["documents"],
                                 metadatas=batch_data["metadatas"]
                             )
-                            if TEST_MODE:
+                            if DEBUG:
                                 print(f"[VectorStore] Successfully inserted {i+1}-{end_idx} documents (Retry {attempt + 1})")
                             break
                         except Exception as e:
@@ -120,7 +120,7 @@ class VectorStore:
                 gc.collect()
                 time.sleep(1)
 
-            if TEST_MODE:
+            if DEBUG:
                 print(f"[VectorStore] Data insertion completed")
             
         except Exception as e:
@@ -138,7 +138,7 @@ class VectorStore:
         Returns:
             List[Dict]: Search results
         """
-        if TEST_MODE:
+        if DEBUG:
             print(f"\n[VectorStore] Performing vector search, limit={limit}")
         
         try:
@@ -157,7 +157,7 @@ class VectorStore:
                         "score": results["distances"][0][i] if "distances" in results else None
                     })
             
-            if TEST_MODE:
+            if DEBUG:
                 print(f"[VectorStore] Found {len(formatted_results)} related documents")
                 if formatted_results:
                     print(f"[VectorStore] Most related document: {formatted_results[0]['content'][:100]}...")

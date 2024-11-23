@@ -7,7 +7,7 @@ import os
 
 load_dotenv()
 
-TEST_MODE = os.getenv("TEST_MODE", "False").lower() == "true"
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 class VectorIndexer:
     def __init__(self, 
@@ -34,24 +34,24 @@ class VectorIndexer:
             bool: True if index building is successful, False otherwise
         """
         try:
-            if TEST_MODE:
+            if DEBUG:
                 print(f"\n[VectorIndexer] Processing {len(documents)} documents")
             
             # Get embeddings
             embedded_docs = self.embedding_service.embed_documents(documents)
-            if TEST_MODE:
+            if DEBUG:
                 print(f"[VectorIndexer] Successfully generated embeddings for {len(embedded_docs)} documents")
             
             # Convert to Chroma format
             vector_data = self.embedding_service.get_chroma_data(embedded_docs)
-            if TEST_MODE:
+            if DEBUG:
                 print(f"[VectorIndexer] Data conversion completed, preparing to insert into vector store")
                 print(f"[VectorIndexer] Vector data format: {list(vector_data.keys())}")
             
             # Save the vector data
             try:
                 output_paths = self.embedding_service.save_embeddings(vector_data)
-                if TEST_MODE:
+                if DEBUG:
                     print(f"[VectorIndexer] Vector data saved to: {output_paths}")
             except Exception as save_error:
                 print(f"[VectorIndexer] Warning: Failed to save vectors: {save_error}")
@@ -59,13 +59,13 @@ class VectorIndexer:
             
             # Insert into vector store
             self.vector_store.insert(vector_data)
-            if TEST_MODE:
+            if DEBUG:
                 print(f"[VectorIndexer] Index building completed")
             
             return True
         
         except Exception as e:
-            if TEST_MODE:
+            if DEBUG:
                 print(f"[VectorIndexer] Index building failed: {e}")
                 import traceback
                 print(traceback.format_exc())
