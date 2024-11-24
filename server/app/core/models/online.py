@@ -19,6 +19,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableWithMessageHistory
 from langchain_community.chat_message_histories.file import FileChatMessageHistory
+from server.app.core.models.base import BaseLLM
 
 load_dotenv()
 
@@ -60,7 +61,9 @@ class ChatMessageManager:
         self._states: Dict[str, ChatState] = {}
     
     def get_history(self, session_id: str) -> BaseChatMessageHistory:
-        """Get or create history for a session"""
+        """
+        Get or create history for a session
+        """
         if session_id not in self._histories:
             history_file = self.history_dir / f"{session_id}.json"
             self._histories[session_id] = FileChatMessageHistory(str(history_file))
@@ -68,11 +71,15 @@ class ChatMessageManager:
         return self._histories[session_id]
     
     def should_summarize(self, messages: List[BaseMessage]) -> bool:
-        """Check if we should summarize the conversation"""
+        """
+        Check if we should summarize the conversation
+        """
         return len(messages) > self.max_messages
     
     async def create_summary(self, messages: List[BaseMessage], summary_prompt: str = SUMMARY_PROMPT_TEMPLATE) -> str:
-        """Create a summary of the conversation"""
+        """
+        Create a summary of the conversation
+        """
         if not self.llm:
             raise ValueError("LLM not initialized for summarization")
         
@@ -97,7 +104,9 @@ class ChatMessageManager:
             raise
     
     async def process_messages(self, session_id: str, summary_prompt: str = SUMMARY_PROMPT_TEMPLATE) -> List[BaseMessage]:
-        """Process messages and create summary if needed"""
+        """
+        Process messages and create summary if needed
+        """
         history = self.get_history(session_id)
         state = self._states[session_id]
         messages = history.messages
@@ -165,7 +174,7 @@ class ChatMessageManager:
         """
         return [f.stem for f in self.history_dir.glob("*.json")]
 
-class LangChainChat:
+class LangChainChat(BaseLLM):
     """
     Modern LangChain chat implementation with summarization
     """
@@ -177,11 +186,19 @@ class LangChainChat:
         system_prompt: str = "You are a helpful AI assistant.",
         summary_prompt: str = SUMMARY_PROMPT_TEMPLATE,
         history_dir: Path = HISTORY_DIR,
-        max_messages: int = 6
+        max_messages: int = 6,
+        **kwargs
     ):
         """
         Initialize the chat system with summarization capability
         """
+        super().__init__(
+            model_name=model_name,
+            system_prompt=system_prompt,
+            history_dir=history_dir,
+            max_messages=max_messages
+        )
+        
         self.llm = ChatOpenAI(
             model=model_name,
             base_url=base_url,
