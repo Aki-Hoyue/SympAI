@@ -234,6 +234,35 @@ class LangChainChat(BaseLLM):
             history_messages_key="history"
         )
 
+    def configure(self, 
+                  base_url: str = os.getenv("OPENAI_BASE_URL"),
+                  api_key: str = os.getenv("OPENAI_API_KEY"),
+                  model_name: str = os.getenv("OPENAI_MODEL_NAME"),
+                  system_prompt: str = "You are a helpful AI assistant.",
+                  summary_prompt: str = SUMMARY_PROMPT_TEMPLATE,
+                  history_dir: Path = HISTORY_DIR,
+                  max_messages: int = 6,
+                  **kwargs):
+        """
+        Configure the model
+        
+        Args:
+            base_url (str): Base URL for the OpenAI API
+            api_key (str): API key for the OpenAI API
+            model_name (str): Name of the OpenAI model
+            system_prompt (str): System prompt for the model
+            summary_prompt (str): Summary prompt for the model
+            history_dir (Path): Directory for storing chat histories
+            max_messages (int): Maximum number of messages before summarization
+        """
+        self.base_url = base_url
+        self.api_key = api_key
+        self.model_name = model_name
+        self.system_prompt = system_prompt
+        self.summary_prompt = summary_prompt
+        self.history_dir = history_dir
+        self.max_messages = max_messages
+
     async def achat(
         self,
         message: str,

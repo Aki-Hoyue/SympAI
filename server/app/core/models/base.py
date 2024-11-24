@@ -31,6 +31,11 @@ class BaseLLM(ABC):
         self.max_messages = max_messages
     
     @abstractmethod
+    def configure(self, **kwargs):
+        """Configure the model"""
+        pass
+    
+    @abstractmethod
     async def achat(
         self,
         message: str,
@@ -89,3 +94,15 @@ class BaseLLM(ABC):
     def clear_all_histories(self) -> None:
         """Clear all chat histories"""
         pass
+    
+    def list_models(self) -> List[str]:
+        """
+        List all available models
+        """
+        return [
+            "gpt-4o-mini",
+            "claude-3-haiku-20240307",
+            "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+            "mistralai/Mixtral-8x7B-Instruct-v0.1",
+            "X-D-Lab/Sunsimiao-Qwen-7B",
+        ]
