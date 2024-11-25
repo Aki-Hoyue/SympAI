@@ -59,7 +59,7 @@ export const getChatCompletion = async (
 };
 export const getChatCompletionStream = async (
   endpoint: string,
-  messages: MessageInterface[],
+  messages: string,
   id: number,
   config: ConfigInterface,
   apiKey?: string,
@@ -67,7 +67,8 @@ export const getChatCompletionStream = async (
 ) => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...customHeaders,
+    'User-Agent':'sympai'
+    // ...customHeaders,
   };
   if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
 
@@ -96,15 +97,15 @@ export const getChatCompletionStream = async (
     }
   }
 
-  const response = await fetch("http://localhost:5000/api/tasks", {
+  const response = await fetch("http://192.168.10.171:8000/api/chat", {
     method: 'POST',
     headers,
     body: JSON.stringify({
-      messages,
-      id,
-      ...config,
-      max_tokens: undefined,
-      stream: true,
+      message:messages,
+      // id,
+      // ...config,
+      // max_tokens: undefined,
+      // stream: true,
     }),
   });
 

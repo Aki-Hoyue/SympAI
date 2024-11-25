@@ -86,7 +86,7 @@ const useSubmit = () => {
         // other endpoints
         stream = await getChatCompletionStream(
           useStore.getState().apiEndpoint,
-          messages,
+          messages[messages.length-1]['content'],
           currentChatIndex,
           chats[currentChatIndex].config
         );
@@ -95,7 +95,7 @@ const useSubmit = () => {
         console.log(messages)
         stream = await getChatCompletionStream(
           useStore.getState().apiEndpoint,
-          messages,
+            messages[messages.length-1]['content'],
             chats.length-currentChatIndex-1,
           chats[currentChatIndex].config,
           apiKey
@@ -154,13 +154,14 @@ const useSubmit = () => {
           /* 读取其中一部分内容 done 是否读取完成， value 读取到的内容 */
           const {done, value} = await reader.read()
           if(done){
-            return
+            break
           }
           const str = textDecoder.decode(value) // 利用解码器把数据解析成字符串
           const updatedChats: ChatInterface[] = JSON.parse(
             JSON.stringify(useStore.getState().chats)
           );
           const updatedMessages = updatedChats[currentChatIndex].messages;
+          console.log(str)
           updatedMessages[updatedMessages.length - 1].content += str;
           setChats(updatedChats);
         }
