@@ -1,8 +1,10 @@
 from typing import AsyncGenerator
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from server.app.core.models.online import LangChainChat
+from server.utils.config import RAGPipeline
+from server.utils.prompt import SYSTEM_PROMPT
 import json
 import os
 from dotenv import load_dotenv
@@ -20,7 +22,7 @@ class ChatRequest(BaseModel):
     base_url: str = os.getenv("OPENAI_BASE_URL")
     api_key: str = os.getenv("OPENAI_API_KEY")
     model: str = os.getenv("OPENAI_MODEL_NAME")
-    system_prompt: str = "You are a helpful assistant specialized in Traditional Chinese Medicine."
+    system_prompt: str = SYSTEM_PROMPT
     max_messages: int = 6
 
 async def verify_auth(request: Request):
@@ -35,11 +37,21 @@ async def verify_auth(request: Request):
             detail="Unauthorized access. Invalid user-agent."
         )
 
-async def stream_generator(request: ChatRequest) -> AsyncGenerator[str, None]:
+async def get_rag_pipeline(request: Request) -> RAGPipeline:
+    """Get RAG pipeline instance"""
+    if not hasattr(request.app.state, 'rag_pipeline'):
+        request.app.state.rag_pipeline = RAGPipeline.get_instance()
+    return request.app.state.rag_pipeline
+
+async def stream_generator(request: ChatRequest, rag: RAGPipeline) -> AsyncGenerator[str, None]:
     """
-    Generate streaming chat response
+    Generate streaming chat response with RAG enhancement
     """
     try:
+        # Get RAG-enhanced prompt
+        rag_prompt = rag.get_enhanced_prompt(request.message)
+        
+        # Configure the model
         model.configure(
             base_url=request.base_url,
             api_key=request.api_key,
@@ -48,7 +60,8 @@ async def stream_generator(request: ChatRequest) -> AsyncGenerator[str, None]:
             max_messages=request.max_messages
         )
         
-        async for chunk in model.astream_chat(request.message):
+        # Use the RAG-enhanced prompt for chat
+        async for chunk in model.astream_chat(rag_prompt):
             if DEBUG:
                 print(f"Streaming chunk: {chunk}")
             yield f"data: {json.dumps({'text': chunk})}\n\n"
@@ -65,27 +78,16 @@ async def root():
     return {"message": "SympAI API is running"}
 
 @router.post("/api/chat")
-async def stream_chat(request: ChatRequest, req: Request):
-    """
-    Stream chat endpoint that returns chunks of generated text
-    
-    Args:
-        request (ChatRequest): Chat request containing message and model configuration
-        ChatRequest:
-          - message (str): User message
-          - base_url (str): Base URL for the OpenAI API
-          - api_key (str): API key for the OpenAI API
-          - model_name (str): Name of the OpenAI model
-          - system_prompt (str): System prompt for the model
-          - max_messages (int): Maximum number of messages before summarization
-    
-    Returns:
-        StreamingResponse: Server-sent events stream of generated text chunks
-    """
+async def stream_chat(
+    request: ChatRequest, 
+    req: Request,
+    rag: RAGPipeline = Depends(get_rag_pipeline)
+):
+    """Stream chat endpoint with RAG enhancement"""
     await verify_auth(req)
     try:
         return StreamingResponse(
-            stream_generator(request),
+            stream_generator(request, rag),
             media_type="text/event-stream"
         )
     except Exception as e:

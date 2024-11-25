@@ -6,6 +6,10 @@ from pathlib import Path
 
 # Load environment variables
 load_dotenv()
+import sys
+
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 # Default configuration
 DEFAULT_HOST = os.getenv("HOST", "0.0.0.0")
@@ -78,4 +82,4 @@ def main():
     )
 
 if __name__ == "__main__":
-    main() 
+    main()

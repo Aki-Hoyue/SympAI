@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from server.app.api.routes import router
+from server.app.api.routes import server
+from server.utils.config import RAGPipeline
+
+# Initialize RAG Pipeline at startup
+rag_pipeline = RAGPipeline.get_instance()
 
 app = FastAPI(title="SympAI API")
 
@@ -13,10 +17,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers without prefix to allow root path handling
-app.include_router(router)
+# Make RAG pipeline available to the app
+app.state.rag_pipeline = rag_pipeline
 
-# Health check endpoint
+app.include_router(server.router)
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"} 
