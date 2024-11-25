@@ -20,26 +20,19 @@ from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableWithMessageHistory
 from langchain_community.chat_message_histories.file import FileChatMessageHistory
 from server.app.core.models.base import BaseLLM
+from server.utils.prompt import SUMMARY_PROMPT, SYSTEM_PROMPT
 
 load_dotenv()
 
 HISTORY_DIR = PROJECT_ROOT / "server" / "app" / "core" / "models" / "history"
 HISTORY_DIR.mkdir(parents=True, exist_ok=True)
 
-SUMMARY_PROMPT_TEMPLATE = """Please summarize the following conversation. The summary should:
-1. retain key information provided by the user (e.g., name, preferences, etc.)
-2. retain the main themes and conclusions of the conversation
-3. organize the content chronologically
-4. be concise but informative
-5. use Markdown format and user query language as the default language
-6. Output should be short and concise, no more than 500 words
-Current conversation:
-{conversation}
-Please generate a summary: 
-"""
+SUMMARY_PROMPT_TEMPLATE = SUMMARY_PROMPT
 
 class ChatState:
-    """State class for managing chat history and summary"""
+    """
+    State class for managing chat history and summary
+    """
     def __init__(self):
         self.messages: List[BaseMessage] = []
         self.summary: str = ""
@@ -238,7 +231,7 @@ class LangChainChat(BaseLLM):
                   base_url: str = os.getenv("OPENAI_BASE_URL"),
                   api_key: str = os.getenv("OPENAI_API_KEY"),
                   model_name: str = os.getenv("OPENAI_MODEL_NAME"),
-                  system_prompt: str = "You are a helpful AI assistant.",
+                  system_prompt: str = SYSTEM_PROMPT,
                   summary_prompt: str = SUMMARY_PROMPT_TEMPLATE,
                   history_dir: Path = HISTORY_DIR,
                   max_messages: int = 6,
