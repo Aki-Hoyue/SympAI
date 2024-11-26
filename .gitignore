@@ -165,3 +165,7 @@ cython_debug/
 
 # Test
 local/
+
+# Frontend
+node_modules/
+
