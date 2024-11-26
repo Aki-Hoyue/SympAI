@@ -1,9 +1,9 @@
-version: '3.4'
+version: '1.0.0'
 
 services:
   ui_dev:
     restart: always
-    image: better-chat-gpt
+    image: SympAI
     build:
       context: ./
     ports:
