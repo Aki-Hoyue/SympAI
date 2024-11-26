@@ -1,5 +1,5 @@
 # SympAI
-English | (中文)[https://github.com/Aki-Hoyue/SympAI/blob/main/README_cn.md]
+English | [中文](https://github.com/Aki-Hoyue/SympAI/blob/main/README_cn.md)
 
 ## Introduction
 SympAI is an intelligent healthcare system that combines artificial intelligence with comprehensive medical knowledge. The system aims to provide users with accurate symptom analysis and personalized health guidance through natural language interaction.
