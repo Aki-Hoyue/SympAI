@@ -1,0 +1,10 @@
+version: '1.0.0'
+
+services:
+  ui_dev:
+    restart: always
+    image: SympAI
+    build:
+      context: ./
+    ports:
+      - 5173:3000
