@@ -2,10 +2,9 @@ import React from 'react';
 import useStore from '@store/store';
 import { useTranslation } from 'react-i18next';
 import { ChatInterface, MessageInterface } from '@type/chat';
-import { getChatCompletion, getChatCompletionStream } from '@api/api';
+import { getChatCompletionStream } from '@api/api';
 import { limitMessageTokens, updateTotalTokenUsed } from '@utils/messageUtils';
 import { _defaultChatConfig } from '@constants/chat';
-import { officialAPIEndpoint } from '@constants/auth';
 
 const useSubmit = () => {
   const { t, i18n } = useTranslation('api');
@@ -21,33 +20,31 @@ const useSubmit = () => {
   const generateTitle = async (
     message: MessageInterface[]
   ): Promise<string> => {
-    let data;
     try {
-      if (!apiKey || apiKey.length === 0) {
-        // official endpoint
-        if (apiEndpoint === officialAPIEndpoint) {
-          throw new Error(t('noApiKeyWarning') as string);
-        }
+      const response = await fetch("http://127.0.0.1:8000/api/generate_title", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          message: message[0].content,
+        }),
+      });
 
-        // other endpoints
-        data = await getChatCompletion(
-          useStore.getState().apiEndpoint,
-          message,
-          _defaultChatConfig
-        );
-      } else if (apiKey) {
-        // own apikey
-        data = await getChatCompletion(
-          useStore.getState().apiEndpoint,
-          message,
-          _defaultChatConfig,
-          apiKey
-        );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.status === 'success' && data.title) {
+        return data.title;
+      } else {
+        throw new Error('Failed to generate title');
       }
     } catch (error: unknown) {
       throw new Error(`Error generating title!\n${(error as Error).message}`);
     }
-    return data.choices[0].message.content;
   };
 
   const handleSubmit = async () => {
@@ -63,9 +60,8 @@ const useSubmit = () => {
 
     setChats(updatedChats);
     setGenerating(true);
-    // console.log(updatedChats[currentChatIndex]);
+
     try {
-      let stream;
       if (chats[currentChatIndex].messages.length === 0)
         throw new Error('No messages submitted!');
 
@@ -74,34 +70,17 @@ const useSubmit = () => {
         chats[currentChatIndex].config.max_tokens,
         chats[currentChatIndex].config.model
       );
+      
       if (messages.length === 0) throw new Error('Message exceed max token!');
-      // console.log(messages)
-      // no api key (free)
-      if (!apiKey || apiKey.length === 0) {
-        // official endpoint
-        if (apiEndpoint === officialAPIEndpoint) {
-          throw new Error(t('noApiKeyWarning') as string);
-        }
-        // other endpoints
-        stream = await getChatCompletionStream(
-          useStore.getState().apiEndpoint,
-          messages[messages.length-1]['content'],
-          currentChatIndex,
-          chats[currentChatIndex].config
-        );
-      } else if (apiKey) {
-        // own apikey
-        console.log(messages)
-        stream = await getChatCompletionStream(
-          useStore.getState().apiEndpoint,
-            messages[messages.length-1]['content'],
-            chats.length-currentChatIndex-1,
-          chats[currentChatIndex].config,
-          apiKey
-        );
-      }
-      // chats[currentChatIndex].messages.push({role: "assistant", content:"Hi im **Nigger**"});
-      // setChats(chats)
+
+      const stream = await getChatCompletionStream(
+        useStore.getState().apiEndpoint,
+        messages[messages.length-1]['content'],
+        chats.length-currentChatIndex-1,
+        chats[currentChatIndex].config,
+        apiKey
+      );
+
       if (stream) {
         if (stream.locked)
           throw new Error(
