@@ -26,15 +26,12 @@ function App() {
   }, []);
 
   useEffect(() => {
+    // 设置固定的API Key
+    setApiKey('sk-hoyue-sympai');
+    
     // legacy local storage
     const oldChats = localStorage.getItem('chats');
-    const apiKey = localStorage.getItem('apiKey');
     const theme = localStorage.getItem('theme');
-    if (apiKey) {
-      // legacy local storage
-      setApiKey(apiKey);
-      localStorage.removeItem('apiKey');
-    }
 
     if (theme) {
       // legacy local storage
@@ -62,13 +59,6 @@ function App() {
       const chats = useStore.getState().chats;
       const currentChatIndex = useStore.getState().currentChatIndex;
 
-
-
-      // axios.defaults.baseURL = 'http://localhost:5000';
-      // axios.post('/api/tasks', {id:currentChatIndex, chat:chats[currentChatIndex].messages}, {headers: {'Content-Type': 'application/json'}}).then(response => {
-      // }, error => {
-      //   console.log('错误', error.message)
-      // })
       if (!chats || chats.length === 0) {
         initialiseNewChat();
       }
