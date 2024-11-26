@@ -3,8 +3,8 @@ from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from server.app.core.models.online import LangChainChat
-from server.utils.config import RAGPipeline
-from server.utils.prompt import SYSTEM_PROMPT, TITLE_SYSTEM_PROMPT
+from server.app.utils.config import RAGPipeline
+from server.app.utils.prompt import SYSTEM_PROMPT, TITLE_SYSTEM_PROMPT
 import json
 import os
 from dotenv import load_dotenv

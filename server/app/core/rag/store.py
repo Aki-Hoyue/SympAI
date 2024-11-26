@@ -39,8 +39,8 @@ class VectorStore:
             # If the collection exists, delete it
             try:
                 self.client.delete_collection(collection_name)
-            except:
-                pass
+            except Exception as e:
+                raise ValueError(f"Failed to delete collection: {e}")
             
             # Create new collection
             self.collection = self.client.create_collection(
@@ -121,7 +121,7 @@ class VectorStore:
                 time.sleep(1)
 
             if DEBUG:
-                print(f"[VectorStore] Data insertion completed")
+                print("[VectorStore] Data insertion completed")
             
         except Exception as e:
             print(f"[VectorStore] Insert data failed: {str(e)}")

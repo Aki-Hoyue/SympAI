@@ -7,7 +7,7 @@ import numpy as np
 from langchain.schema import Document
 from dotenv import load_dotenv
 import os
-from server.utils.config import PROJECT_ROOT
+from server.app.utils.config import PROJECT_ROOT
 
 load_dotenv()
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 import os
 from dotenv import load_dotenv
-from server.utils.prompt import QUERY_PROMPT
+from server.app.utils.prompt import QUERY_PROMPT
 
 load_dotenv()
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"

@@ -4,9 +4,10 @@ from typing import Dict, List, Optional
 from pathlib import Path
 from dotenv import load_dotenv
 import sys
-PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-# TODO: ROOT DIR needs to be replace
+
+if not sys.path[0]:
+    PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.parent
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import (
@@ -20,7 +21,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableWithMessageHistory
 from langchain_community.chat_message_histories.file import FileChatMessageHistory
 from server.app.core.models.base import BaseLLM
-from server.utils.prompt import SUMMARY_PROMPT, SYSTEM_PROMPT
+from server.app.utils.prompt import SUMMARY_PROMPT, SYSTEM_PROMPT
 
 load_dotenv()
 

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from server.app.api.routes import server
-from server.utils.config import RAGPipeline
+from server.app.utils.config import RAGPipeline
 
 # Initialize RAG Pipeline at startup
 rag_pipeline = RAGPipeline.get_instance()
