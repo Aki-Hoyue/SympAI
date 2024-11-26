@@ -17,7 +17,7 @@ i18n
     backend: {
       loadPath: 'locales/{{lng}}/{{ns}}.json',
     },
-    lng: 'en-US',
+    lng: localStorage.getItem('sympai-language') || 'en-US',
     fallbackLng: {
       default: ['en'],
     },

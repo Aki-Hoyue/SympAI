@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import DownChevronArrow from '@icon/DownChevronArrow';
@@ -6,8 +6,21 @@ import { languageCodeToName, selectableLanguages } from '@constants/language';
 
 const LanguageSelector = () => {
   const { i18n } = useTranslation();
-
   const [dropDown, setDropDown] = useState<boolean>(false);
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('sympai-language');
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage);
+    }
+  }, []);
+
+  const handleLanguageChange = (lang: string) => {
+    i18n.changeLanguage(lang);
+    localStorage.setItem('sympai-language', lang);
+    setDropDown(false);
+  };
+
   return (
     <div className='prose dark:prose-invert relative'>
       <button
@@ -33,10 +46,7 @@ const LanguageSelector = () => {
           {selectableLanguages.map((lang) => (
             <li
               className='px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer'
-              onClick={() => {
-                i18n.changeLanguage(lang);
-                setDropDown(false);
-              }}
+              onClick={() => handleLanguageChange(lang)}
               key={lang}
               lang={lang}
             >
