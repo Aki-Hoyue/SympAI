@@ -4,7 +4,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from server.app.core.models.online import LangChainChat
 from server.utils.config import RAGPipeline
-from server.utils.prompt import SYSTEM_PROMPT
+from server.utils.prompt import SYSTEM_PROMPT, TITLE_SYSTEM_PROMPT
 import json
 import os
 from dotenv import load_dotenv
@@ -20,11 +20,18 @@ model = LangChainChat()
 
 class ChatRequest(BaseModel):
     message: str
+    session_id: str = None
     base_url: str = os.getenv("OPENAI_BASE_URL")
     api_key: str = os.getenv("OPENAI_API_KEY")
     model: str = os.getenv("OPENAI_MODEL_NAME")
     system_prompt: str = SYSTEM_PROMPT
     max_messages: int = 6
+
+class TitleRequest(BaseModel):
+    message: str
+    base_url: str = os.getenv("OPENAI_BASE_URL")
+    api_key: str = os.getenv("OPENAI_API_KEY")
+    model: str = os.getenv("OPENAI_MODEL_NAME")
 
 async def verify_auth(request: Request):
     """
@@ -109,4 +116,35 @@ async def get_models(request: Request):
         "code": 200,
         "models": model.list_models()
     }
+
+@router.post("/api/generate_title")
+async def generate_title(
+    request: TitleRequest,
+    req: Request,
+):
+    """Generate a title for the conversation"""
+    await verify_auth(req)
+    try:
+        # Configure the model for title generation
+        model.configure(
+            base_url=request.base_url,
+            api_key=request.api_key,
+            model_name=request.model,
+            system_prompt=TITLE_SYSTEM_PROMPT,
+            max_messages=1  # We only need one message for title generation
+        )
+        
+        # Generate title using non-streaming chat
+        title = await model.achat(request.message)
+        
+        return {
+            "status": "success",
+            "code": 200,
+            "title": title.strip()  # Remove any extra whitespace
+        }
+        
+    except Exception as e:
+        if DEBUG:
+            print(f"Error in generate_title endpoint: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
