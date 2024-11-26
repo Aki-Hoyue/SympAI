@@ -1,0 +1,18 @@
+[
+    {
+        "type": "text",
+        "title": "title",
+        "filename": "filename.txt",
+        "chunk_size": 100,
+        "chunk_overlap": 20,
+        "separators": []
+    },
+    {
+        "type": "jsonl",
+        "title": "title",
+        "filename": "filename.txt",
+        "chunk_size": 200,
+        "chunk_overlap": 50,
+        "separators": ["<Break>"]
+    }
+] 
