@@ -12,13 +12,23 @@ const getOppositeTheme = (theme: Theme): Theme => {
     return 'dark';
   }
 };
+
 const ThemeSwitcher = () => {
   const { t } = useTranslation();
   const theme = useStore((state) => state.theme);
   const setTheme = useStore((state) => state.setTheme);
 
+  // 从localStorage加载主题设置
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('sympai-theme') || 'light';
+    setTheme(savedTheme as Theme);
+  }, []);
+
   const switchTheme = () => {
-    setTheme(getOppositeTheme(theme!));
+    const newTheme = getOppositeTheme(theme!);
+    setTheme(newTheme);
+    // 保存主题设置到localStorage
+    localStorage.setItem('sympai-theme', newTheme);
   };
 
   useEffect(() => {

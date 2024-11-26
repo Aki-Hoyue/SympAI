@@ -5,7 +5,7 @@ import useStore from '@store/store';
 import PopupModal from '@components/PopupModal';
 import SettingIcon from '@icon/SettingIcon';
 import ThemeSwitcher from '@components/Menu/MenuOptions/ThemeSwitcher';
-import LanguageSelector from '@components/LanguageSelector';
+import LanguageSelector from '@components/LanguageSelector/LanguageSelector';
 
 const SettingsMenu = () => {
   const { t } = useTranslation();

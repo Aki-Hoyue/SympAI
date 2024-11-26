@@ -72,7 +72,7 @@ const useStore = create<StoreState>()(
       ...createToastSlice(set, get),
     }),
     {
-      name: 'free-chat-gpt',
+      name: 'chat-history',
       partialize: (state) => createPartializedState(state),
       version: 8,
       migrate: (persistedState, version) => {
