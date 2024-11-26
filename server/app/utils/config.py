@@ -53,7 +53,7 @@ class RAGPipeline:
             self.preprocessor = DataPreprocessor()
             self.embedding_service = EmbeddingService()
             self.vector_store = VectorStore(
-                collection_name="test_medical",
+                collection_name="medical_knowledge",
                 persist_directory=str(self.db_dir)
             )
             self.indexer = VectorIndexer(

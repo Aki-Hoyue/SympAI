@@ -38,9 +38,10 @@ class VectorStore:
             
             # If the collection exists, delete it
             try:
-                self.client.delete_collection(collection_name)
-            except Exception as e:
-                raise ValueError(f"Failed to delete collection: {e}")
+                if self.client.get_collection(collection_name):
+                    self.client.delete_collection(collection_name)
+            except:
+                pass
             
             # Create new collection
             self.collection = self.client.create_collection(
