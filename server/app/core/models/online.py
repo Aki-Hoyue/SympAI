@@ -5,9 +5,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import sys
 
-if not sys.path[0]:
-    PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.parent
-    sys.path.insert(0, str(PROJECT_ROOT))
+PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import (

@@ -5,7 +5,7 @@ import json
 from datasets import load_dataset
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
-from ....utils.config import PROJECT_ROOT
+from ...utils.config import PROJECT_ROOT
 from dotenv import load_dotenv
 import os
 load_dotenv()
