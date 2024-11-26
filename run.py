@@ -47,6 +47,7 @@ def parse_args():
     parser.add_argument(
         "--reload",
         action="store_true",
+        default=True,
         help="Enable auto-reload on code changes (development mode)"
     )
     

@@ -236,18 +236,7 @@ class LangChainChat(BaseLLM):
                   history_dir: Path = HISTORY_DIR,
                   max_messages: int = 6,
                   **kwargs):
-        """
-        Configure the model
-        
-        Args:
-            base_url (str): Base URL for the OpenAI API
-            api_key (str): API key for the OpenAI API
-            model_name (str): Name of the OpenAI model
-            system_prompt (str): System prompt for the model
-            summary_prompt (str): Summary prompt for the model
-            history_dir (Path): Directory for storing chat histories
-            max_messages (int): Maximum number of messages before summarization
-        """
+        """Configure the model"""
         self.base_url = base_url
         self.api_key = api_key
         self.model_name = model_name
@@ -255,6 +244,39 @@ class LangChainChat(BaseLLM):
         self.summary_prompt = summary_prompt
         self.history_dir = history_dir
         self.max_messages = max_messages
+        
+        # Update LLM configuration
+        self.llm = ChatOpenAI(
+            model=model_name,
+            base_url=base_url,
+            api_key=api_key,
+            streaming=True
+        )
+        
+        # Update prompt template with new system prompt
+        self.prompt = ChatPromptTemplate.from_messages([
+            ("system", system_prompt),
+            MessagesPlaceholder(variable_name="history"),
+            MessagesPlaceholder(variable_name="input"),
+        ])
+        
+        # Update the chain with new prompt and llm
+        self.chain = self.prompt | self.llm
+        
+        # Update runnable chain
+        self.runnable_chain = RunnableWithMessageHistory(
+            self.chain,
+            lambda session_id: self.message_manager.get_history(session_id),
+            input_messages_key="input",
+            history_messages_key="history"
+        )
+        
+        # Update message manager
+        self.message_manager = ChatMessageManager(
+            history_dir=history_dir,
+            max_messages=max_messages,
+            llm=self.llm
+        )
 
     async def achat(
         self,
@@ -262,9 +284,7 @@ class LangChainChat(BaseLLM):
         session_id: Optional[str] = None,
         **kwargs
     ) -> str:
-        """
-        Async chat with summary support
-        """
+        """Async chat with summary support"""
         if session_id is None:
             session_id = str(uuid.uuid4())
             
@@ -275,7 +295,7 @@ class LangChainChat(BaseLLM):
             # Process messages and get summary if needed
             await self.message_manager.process_messages(session_id, self.summary_prompt)
             
-            # Get response
+            # Get response using the configured chain
             response = await self.runnable_chain.ainvoke(
                 {"input": messages},
                 config,
@@ -304,9 +324,7 @@ class LangChainChat(BaseLLM):
         session_id: Optional[str] = None,
         **kwargs
     ):
-        """
-        Async streaming chat with summary support
-        """
+        """Async streaming chat with summary support"""
         if session_id is None:
             session_id = str(uuid.uuid4())
             
@@ -317,7 +335,7 @@ class LangChainChat(BaseLLM):
             # Process messages and get summary if needed
             await self.message_manager.process_messages(session_id, self.summary_prompt)
             
-            # Stream response
+            # Stream response using the configured chain
             async for chunk in self.runnable_chain.astream(
                 {"input": messages},
                 config,
