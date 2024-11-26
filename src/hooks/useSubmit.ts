@@ -76,7 +76,7 @@ const useSubmit = () => {
       const stream = await getChatCompletionStream(
         useStore.getState().apiEndpoint,
         messages[messages.length-1]['content'],
-        chats.length-currentChatIndex-1,
+        chats[currentChatIndex].id,
         chats[currentChatIndex].config,
         apiKey
       );

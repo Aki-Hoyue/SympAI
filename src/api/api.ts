@@ -3,7 +3,7 @@ import { ConfigInterface } from '@type/chat';
 export const getChatCompletionStream = async (
   endpoint: string,
   messages: string,
-  id: number,
+  id: string,
   config: ConfigInterface,
   apiKey?: string,
 ) => {
@@ -18,6 +18,7 @@ export const getChatCompletionStream = async (
     headers,
     body: JSON.stringify({
       message: messages,
+      session_id: id,
     }),
   });
 
