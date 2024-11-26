@@ -32,10 +32,6 @@ server/
 │   ├── test_models.py               # Model Test
 │   └── test_openai.py               # OpenAI Model Test
 │   └── test_rag_pipeline.py         # RAG Pipeline Test
-├── data/                            # Medical Knowledge Base Data
-│   ├── raw/                         # Raw Data
-│   └── vectors/                     # Vector Data
-├── .env                             # Environment Variables
-├── requirements.txt
-├── run.py                           # Run the server
-└── README.md
+└── data/                            # Medical Knowledge Base Data
+    ├── raw/                         # Raw Data
+    └── vectors/                     # Vector Data
