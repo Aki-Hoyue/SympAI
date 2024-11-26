@@ -68,7 +68,7 @@ async def stream_generator(request: ChatRequest, rag: RAGPipeline) -> AsyncGener
         )
         
         # Use the RAG-enhanced prompt for chat
-        async for chunk in model.astream_chat(rag_prompt):
+        async for chunk in model.astream_chat(rag_prompt, request.session_id):
             if DEBUG:
                 print(f"Streaming chunk: {chunk}")
             yield f"data: {json.dumps({'text': chunk})}\n\n"
