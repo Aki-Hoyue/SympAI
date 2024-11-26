@@ -3,7 +3,6 @@ import useStore from '@store/store';
 import { useTranslation } from 'react-i18next';
 import { ChatInterface, MessageInterface } from '@type/chat';
 import { getChatCompletion, getChatCompletionStream } from '@api/api';
-import { parseEventSource } from '@api/helper';
 import { limitMessageTokens, updateTotalTokenUsed } from '@utils/messageUtils';
 import { _defaultChatConfig } from '@constants/chat';
 import { officialAPIEndpoint } from '@constants/auth';
@@ -108,63 +107,67 @@ const useSubmit = () => {
           throw new Error(
             'Oops, the stream is locked right now. Please try again'
           );
-        // const reader = stream.getReader();
-        // let reading = true;
-        // let partial = '';
-        // while (reading && useStore.getState().generating) {
-        //   const { done, value } = await reader.read();
-        //   const result = parseEventSource(
-        //     partial + new TextDecoder().decode(value)
-        //   );
-        //   console.log(result,done);
-        //   partial = '';
-        //
-        //   if (result === '[DONE]' || done) {
-        //     reading = false;
-        //   } else {
-        //     const resultString = result.reduce((output: string, curr) => {
-        //       if (typeof curr === 'string') {
-        //         partial += curr;
-        //       } else {
-        //         const content = curr.choices[0]?.delta?.content ?? null;
-        //         if (content) output += content;
-        //       }
-        //       return output;
-        //     }, '');
-        //
-        //     const updatedChats: ChatInterface[] = JSON.parse(
-        //       JSON.stringify(useStore.getState().chats)
-        //     );
-        //     const updatedMessages = updatedChats[currentChatIndex].messages;
-        //     updatedMessages[updatedMessages.length - 1].content += resultString;
-        //     setChats(updatedChats);
-        //   }
-        // }
-        // if (useStore.getState().generating) {
-        //   await reader.cancel('Cancelled by user');
-        // } else {
-        //   await reader.cancel('Generation completed');
-        // }
-        // reader.releaseLock();
-        // await stream.cancel();
+        const reader = stream.getReader()
+        const textDecoder = new TextDecoder()
+        let buffer = ''; // 用于存储未完整的数据
 
-        const reader = stream.getReader() // 创建读取器
-        const textDecoder = new TextDecoder() // 创建解码器
-        while(true){  // 循环读取内容
-          /* 读取其中一部分内容 done 是否读取完成， value 读取到的内容 */
+        const parseSSEResponse = (data: string): string => {
+          try {
+            // 移除 "data: " 前缀
+            const jsonStr = data.replace(/^data: /, '');
+            // 解析JSON
+            const parsed = JSON.parse(jsonStr);
+            return parsed.text || '';
+          } catch (error) {
+            console.error('Error parsing SSE data:', error);
+            return '';
+          }
+        };
+
+        while(true){
           const {done, value} = await reader.read()
           if(done){
             break
           }
-          const str = textDecoder.decode(value) // 利用解码器把数据解析成字符串
-          const updatedChats: ChatInterface[] = JSON.parse(
-            JSON.stringify(useStore.getState().chats)
-          );
-          const updatedMessages = updatedChats[currentChatIndex].messages;
-          console.log(str)
-          updatedMessages[updatedMessages.length - 1].content += str;
-          setChats(updatedChats);
+          
+          // 解码新接收的数据
+          const chunk = textDecoder.decode(value, { stream: true });
+          buffer += chunk;
+          
+          // 按双换行符分割数据
+          const parts = buffer.split('\n\n');
+          // 保留最后一个可能不完整的部分
+          buffer = parts.pop() || '';
+          
+          // 处理完整的数据块
+          for (const part of parts) {
+            if (part.trim().length > 0) {
+              const text = parseSSEResponse(part);
+              if (text) {
+                const updatedChats: ChatInterface[] = JSON.parse(
+                  JSON.stringify(useStore.getState().chats)
+                );
+                const updatedMessages = updatedChats[currentChatIndex].messages;
+                updatedMessages[updatedMessages.length - 1].content += text;
+                setChats(updatedChats);
+              }
+            }
+          }
         }
+
+        // 处理缓冲区中剩余的数据
+        if (buffer.trim().length > 0) {
+          const text = parseSSEResponse(buffer);
+          if (text) {
+            const updatedChats: ChatInterface[] = JSON.parse(
+              JSON.stringify(useStore.getState().chats)
+            );
+            const updatedMessages = updatedChats[currentChatIndex].messages;
+            updatedMessages[updatedMessages.length - 1].content += text;
+            setChats(updatedChats);
+          }
+        }
+
         if (useStore.getState().generating) {
           await reader.cancel('Cancelled by user');
         } else {
