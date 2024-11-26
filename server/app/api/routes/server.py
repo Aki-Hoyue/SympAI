@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+SYMPAI_API_KEY_PREFIX = "sk-hoyue-sympai"
 
 router = APIRouter()
 
@@ -27,14 +28,13 @@ class ChatRequest(BaseModel):
 
 async def verify_auth(request: Request):
     """
-    Verify user-agent for authentication
-    TODO: Implement SessionID verification
+    Verify Bearer token for authentication
     """
-    user_agent = request.headers.get("user-agent", "").lower()
-    if user_agent != "sympai":
+    auth = request.headers.get("authorization", "")
+    if not auth.startswith("Bearer ") or auth.replace("Bearer ", "") != SYMPAI_API_KEY_PREFIX:
         raise HTTPException(
             status_code=403,
-            detail="Unauthorized access. Invalid user-agent."
+            detail="Unauthorized access. Invalid API key."
         )
 
 async def get_rag_pipeline(request: Request) -> RAGPipeline:
