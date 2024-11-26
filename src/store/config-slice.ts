@@ -41,7 +41,7 @@ export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
   enterToSubmit: true,
   advancedMode: true,
   defaultChatConfig: _defaultChatConfig,
-  defaultSystemMessage: _defaultSystemMessage,
+  defaultSystemMessage: import.meta.env.VITE_DEFAULT_SYSTEM_MESSAGE ?? _defaultSystemMessage,
   inlineLatex: false,
   markdownMode: true,
   countTotalTokens: false,

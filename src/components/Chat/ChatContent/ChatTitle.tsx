@@ -44,40 +44,12 @@ const ChatTitle = React.memo(() => {
     <>
       <div
           className='flex gap-x-4 gap-y-1 flex-wrap w-full items-center justify-center border-b border-black/10 bg-gray-50 p-3 dark:border-gray-900/50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 cursor-pointer'
-          // onClick={() => {
-          //   setIsModalOpen(true);
-          // }}
-          // style={{position:"absolute"}}
+          
       >
         <div
-            // className='text-center p-1 rounded-md bg-gray-300/20 dark:bg-gray-900/10 hover:bg-gray-300/50 dark:hover:bg-gray-900/50'
             style={{height:"50px",width:"300px", fontSize:"35px", textAlign:"center",lineHeight:"40px"}}>
-          SympAi
+          SympAI
         </div>
-        {/*<div*/}
-        {/*    className='text-center p-1 rounded-md bg-gray-300/20 dark:bg-gray-900/10 hover:bg-gray-300/50 dark:hover:bg-gray-900/50'>*/}
-        {/*  {t('model')}: {config.model}*/}
-        {/*</div>*/}
-        {/*<div*/}
-        {/*    className='text-center p-1 rounded-md bg-gray-300/20 dark:bg-gray-900/10 hover:bg-gray-300/50 dark:hover:bg-gray-900/50'>*/}
-        {/*  {t('token.label')}: {config.max_tokens}*/}
-        {/*</div>*/}
-        {/*<div*/}
-        {/*    className='text-center p-1 rounded-md bg-gray-300/20 dark:bg-gray-900/10 hover:bg-gray-300/50 dark:hover:bg-gray-900/50'>*/}
-        {/*  {t('temperature.label')}: {config.temperature}*/}
-        {/*</div>*/}
-        {/*<div*/}
-        {/*    className='text-center p-1 rounded-md bg-gray-300/20 dark:bg-gray-900/10 hover:bg-gray-300/50 dark:hover:bg-gray-900/50'>*/}
-        {/*  {t('topP.label')}: {config.top_p}*/}
-        {/*</div>*/}
-        {/*<div*/}
-        {/*    className='text-center p-1 rounded-md bg-gray-300/20 dark:bg-gray-900/10 hover:bg-gray-300/50 dark:hover:bg-gray-900/50'>*/}
-        {/*  {t('presencePenalty.label')}: {config.presence_penalty}*/}
-        {/*</div>*/}
-        {/*<div*/}
-        {/*    className='text-center p-1 rounded-md bg-gray-300/20 dark:bg-gray-900/10 hover:bg-gray-300/50 dark:hover:bg-gray-900/50'>*/}
-        {/*  {t('frequencyPenalty.label')}: {config.frequency_penalty}*/}
-        {/*</div>*/}
       </div>
       {isModalOpen && (
           <ConfigMenu
